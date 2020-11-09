@@ -1,6 +1,8 @@
 
 import os
 import boto3
+#to install boto3 run this command: pip install boto3
+
 #These will need top be changed based on user and session.
 # Create an SNS client
 #THESE WILL NO LONGER WORK. NEED TO GET CURRENT USERS CREDENTIALS
