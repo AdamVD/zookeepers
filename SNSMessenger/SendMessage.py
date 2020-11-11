@@ -1,6 +1,7 @@
 
 import os
 import boto3
+#import cdk.sns as cdksns
 #to install boto3 run this command: pip install boto3
 
 #These will need top be changed based on user and session.
@@ -10,7 +11,8 @@ sns = boto3.client('sns',aws_access_key_id = 'ASIAR6RIBEXYIS3YJ6XW',aws_secret_a
 
 # Publish a simple message to the specified SNS topic
 response = sns.publish(
-    TopicArn='arn:aws:sns:us-east-1:134301689328:ZooTestTopic',    
+    #TopicArn= cdksns.topic.TopicArn,    
+    TopicArn='arn:aws:sns:us-east-1:134301689328:ZooTestTopic',
     Subject='TestingZoo',
     Message='Hello World!',    
 )
