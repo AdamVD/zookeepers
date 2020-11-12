@@ -4,7 +4,8 @@ Entry-point for the zookeeper's container.
 
 import logging
 import time
-from src import image_from_url
+from stream_lib import image_from_url
+
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s')
 

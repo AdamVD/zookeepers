@@ -1,9 +1,9 @@
-FROM python:3.9-slim-buster
+FROM python:3.9-buster
 
 WORKDIR /code
 
-COPY Pipfile.lock .
-RUN pip install -g pipenv && pipenv install
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-COPY ./src .
-CMD ["python", "TODO"]
+COPY src/ .
+CMD ["python", "./stream_reader/main.py"]
