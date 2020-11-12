@@ -8,10 +8,11 @@ import imghdr
 
 
 def get_jpeg_at_url(url: str) -> bytes:
-    logging.debug(f'get_image_at_url called with {url}')
+    logging.debug(f'Called with {url}')
     r = requests.get(url)
     if not (r.status_code < 300):
         raise ConnectionError(f'Response from {url} was not <300, got {r.status_code}')
     if imghdr.what(io.BytesIO(r.content)) != 'jpeg':
         raise ValueError(f'Content retrieved from {url} was not a JPEG image')
+    logging.info(f'Successfully retrieved JPEG image from {url}')
     return r.content
