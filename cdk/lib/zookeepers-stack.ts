@@ -7,7 +7,7 @@ export class ZookeepersStack extends cdk.Stack {
     super(scope, id, props);
 
     // Good code practice applies - create cohesive classes which extend cdk.Construct
-    new StreamReader(this, 'StreamReader');
-    new SNS(this, 'PolarBearSNS');
+    let sns = new SNS(this, 'PolarBearSNS');
+    new StreamReader(this, 'StreamReader', this.region, sns);
   }
 }

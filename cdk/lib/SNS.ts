@@ -3,13 +3,15 @@ import * as sns from '@aws-cdk/aws-sns';
 import * as subs from '@aws-cdk/aws-sns-subscriptions';
 
 export class SNS extends cdk.Construct {
+  polarBearTopic: sns.Topic;
+
   constructor(scope: cdk.Construct, id: string) {
     super(scope, id);
 
-    const polarBearTopic = new sns.Topic(this, 'Topic', {
+    this.polarBearTopic = new sns.Topic(this, 'Topic', {
       displayName: 'Polar bear notification topic'
     });
 
-    polarBearTopic.addSubscription(new subs.EmailSubscription('avd5772@rit.edu'));
+    this.polarBearTopic.addSubscription(new subs.EmailSubscription('avd5772@rit.edu'));
   }
 }
