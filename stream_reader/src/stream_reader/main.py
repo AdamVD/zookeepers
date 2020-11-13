@@ -5,6 +5,7 @@ Entry-point for the zookeeper's container.
 import logging
 import time
 from stream_lib import image_from_url
+from stream_lib import sns_notifications
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s')
@@ -31,6 +32,8 @@ def forever_loop(stream_id: str) -> None:
         except ValueError as e:
             logging.error(e)
             logging.info('Will continue to next loop after error')
+
+        sns_notifications.send_notification(sns_notifications.AnimalStatus.NOT_VISIBLE)
 
 
 if __name__ == '__main__':
