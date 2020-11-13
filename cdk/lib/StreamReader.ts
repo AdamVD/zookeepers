@@ -9,19 +9,19 @@ export class StreamReader extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string) {
     super(scope, id);
 
-    const dockerImage = new DockerImageAsset(this, 'StreamReaderImage', {
+    const dockerImage = new DockerImageAsset(this, 'Image', {
       directory: path.join(__dirname, '..', '..', 'stream_reader')
     });
 
-    const cluster = new ecs.Cluster(this, 'StreamReaderCluster');
+    const cluster = new ecs.Cluster(this, 'Cluster');
 
-    const taskDefinition = new ecs.FargateTaskDefinition(this, 'StreamReaderTaskDef');  // TODO give IAM Role
+    const taskDefinition = new ecs.FargateTaskDefinition(this, 'TaskDef');  // TODO give IAM Role
 
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
       removalPolicy: RemovalPolicy.DESTROY
     });
 
-    new ecs.ContainerDefinition(this, 'StreamReaderContainerDef', {
+    new ecs.ContainerDefinition(this, 'ContainerDef', {
       image: ecs.ContainerImage.fromDockerImageAsset(dockerImage),
       taskDefinition: taskDefinition,
       logging: new ecs.AwsLogDriver({
@@ -30,7 +30,7 @@ export class StreamReader extends cdk.Construct {
       })
     });
 
-    new ecs.FargateService(this, 'StreamReaderService', {
+    new ecs.FargateService(this, 'Service', {
       cluster: cluster,
       taskDefinition: taskDefinition
     });
