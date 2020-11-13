@@ -1,7 +1,5 @@
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
 import {DockerImageAsset} from "@aws-cdk/aws-ecr-assets";
 import * as path from "path";
 
@@ -13,17 +11,18 @@ export class StreamReader extends cdk.Construct {
       directory: path.join(__dirname, '..', '..', 'stream_reader')
     });
 
-    const vpc = new ec2.Vpc(this, 'StreamReaderVPC');  // default VPC
+    const cluster = new ecs.Cluster(this, 'StreamReaderCluster');
 
-    const cluster = new ecs.Cluster(this, 'StreamReaderCluster', {
-      vpc: vpc
+    const taskDefinition = new ecs.FargateTaskDefinition(this, 'StreamReaderTaskDef');  // TODO give IAM Role
+
+    new ecs.ContainerDefinition(this, 'StreamReaderContainerDef', {
+      image: ecs.ContainerImage.fromDockerImageAsset(dockerImage),
+      taskDefinition: taskDefinition
     });
 
-    new ecs_patterns.ApplicationLoadBalancedFargateService(this, 'StreamReaderFargateService', {
+    new ecs.FargateService(this, 'StreamReaderService', {
       cluster: cluster,
-      taskImageOptions: {
-        image: ecs.ContainerImage.fromDockerImageAsset(dockerImage)
-      }
+      taskDefinition: taskDefinition
     });
 
     new cdk.CfnOutput(this, 'ImageURI', {
