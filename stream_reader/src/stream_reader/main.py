@@ -3,12 +3,13 @@ Entry-point for the zookeeper's container.
 """
 
 import logging
-import time
-from stream_lib import image_from_url
-from stream_lib import sns_notifications
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s:%(levelname)s:[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s')
+
+import time
+from stream_lib import image_from_url
+from stream_lib import sns_notifications
 
 URL_REPLACE_STR = 'STREAM_ID'
 SAN_DIEGO_PREVIEW_IMAGE_URL_TEMPLATE = f'https://{URL_REPLACE_STR}.preview.api.camzonecdn.com/previewimage'
