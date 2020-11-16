@@ -3,6 +3,8 @@ import {RemovalPolicy} from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as logs from '@aws-cdk/aws-logs';
 import {DockerImageAsset} from "@aws-cdk/aws-ecr-assets";
+import * as iam from '@aws-cdk/aws-iam';
+import * as s3 from '@aws-cdk/aws-s3';
 import * as path from "path";
 import {SNS} from "./SNS";
 
@@ -20,6 +22,21 @@ export class StreamReader extends cdk.Construct {
 
     sns.polarBearTopic.grantPublish(taskDefinition.taskRole);
 
+    const zookeeperImageBucket = new s3.Bucket(this, 'ImageBucket');
+    zookeeperImageBucket.grantReadWrite(taskDefinition.taskRole);
+
+    new iam.Policy(this, 'CustomLabelsDetectAccess', {
+      roles: [taskDefinition.taskRole],
+      statements: [
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions: ['rekognition:DetectCustomLabels'],
+            resources: ['arn:aws:rekognition:us-east-1:591083098024:project/zookeepers_polarbear/version/zookeepers_polarbear.2020-11-15T22.20.57/1605496857456']
+          })
+      ]
+
+    })
+
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
       removalPolicy: RemovalPolicy.DESTROY
     });
@@ -33,7 +50,8 @@ export class StreamReader extends cdk.Construct {
       }),
       environment: {
         REGION: region,
-        TOPIC_ARN: sns.polarBearTopic.topicArn
+        TOPIC_ARN: sns.polarBearTopic.topicArn,
+        IMAGE_BUCKET: zookeeperImageBucket.bucketArn
       }
     });
 
@@ -44,6 +62,10 @@ export class StreamReader extends cdk.Construct {
 
     new cdk.CfnOutput(this, 'ImageURI', {
       value: dockerImage.imageUri
-    })
+    });
+
+    new cdk.CfnOutput(this, 'SNSTopicArn', {
+      value: sns.polarBearTopic.topicArn
+    });
   }
 }
