@@ -2,6 +2,7 @@ import boto3
 import io
 import logging
 import enum
+from botocore import errorfactory
 
 from typing import Tuple
 
@@ -12,20 +13,23 @@ PROJECT_VERSION_ARN = 'arn:aws:rekognition:us-east-1:591083098024:project/zookee
 
 
 class Label(enum.Enum):
-    POLARBEAR = 'polarbear',
-    NO_BEAR = 'no_bear',
+    POLARBEAR = 'polarbear'
+    NO_BEAR = 'no_bear'
     NO_RESULT = enum.auto()  # neither label met the requisite confidence level
 
 
 def detect_labels(jpeg_image: io.BytesIO) -> Tuple[Label, float]:
-    response: dict = rekognition.detect_custom_labels(
-        ProjectVersionArn=PROJECT_VERSION_ARN,
-        Image={
-            'Bytes': jpeg_image
-        },
-        MaxResults=1  # gives us the more confident of the two labels (or nothing if minimum not met)
-        # MinConfidence automatically set by Rekognition based on testing results
-    )
+    try:
+        response: dict = rekognition.detect_custom_labels(
+            ProjectVersionArn=PROJECT_VERSION_ARN,
+            Image={
+                'Bytes': jpeg_image.read()
+            },
+            MaxResults=1  # gives us the more confident of the two labels (or nothing if minimum not met)
+            # MinConfidence automatically set by Rekognition based on testing results
+        )
+    except errorfactory.ResourceNotReadyException as e:
+        logging.warning('CustomLabels model is not yet ready for use')
 
     logging.debug(f'Got response from rekognition detection: {response}')
 

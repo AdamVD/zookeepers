@@ -8,14 +8,14 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s')
 
 import time
-from src.stream_reader.stream_lib import image_from_url
-from src.stream_reader.stream_lib import unlabeled_uploader
-from src.stream_reader.stream_lib import detect_labels
-from src.stream_reader.stream_lib import sns_notifications
+from stream_lib import image_from_url
+# from src.stream_reader.stream_lib import unlabeled_uploader
+from stream_lib import detect_labels
+from stream_lib import sns_notifications
 
 URL_REPLACE_STR = 'STREAM_ID'
 SAN_DIEGO_PREVIEW_IMAGE_URL_TEMPLATE = f'https://{URL_REPLACE_STR}.preview.api.camzonecdn.com/previewimage'
-LOOP_SLEEP_S = 30
+LOOP_SLEEP_S = 10
 
 
 class STREAM_IDS:
