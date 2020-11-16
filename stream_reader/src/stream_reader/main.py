@@ -4,16 +4,18 @@ Entry-point for the zookeeper's container.
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s')
 
 import time
-from stream_lib import image_from_url
-from stream_lib import sns_notifications
+import boto3
+from src.stream_reader.stream_lib import image_from_url
+from src.stream_reader.stream_lib import unlabeled_uploader
+# from src.stream_reader.stream_lib import sns_notifications
 
 URL_REPLACE_STR = 'STREAM_ID'
 SAN_DIEGO_PREVIEW_IMAGE_URL_TEMPLATE = f'https://{URL_REPLACE_STR}.preview.api.camzonecdn.com/previewimage'
-LOOP_SLEEP_S = 10
+LOOP_SLEEP_S = 30
 
 
 class STREAM_IDS:
@@ -27,6 +29,7 @@ def forever_loop(stream_id: str) -> None:
         time.sleep(LOOP_SLEEP_S)
         try:
             jpeg_bytes = image_from_url.get_jpeg_at_url(SAN_DIEGO_PREVIEW_IMAGE_URL_TEMPLATE.replace(URL_REPLACE_STR, stream_id))
+            unlabeled_uploader.upload_image(jpeg_bytes, stream_id)
         except ConnectionError as e:
             logging.error(e)
             logging.info('Will continue to next loop after error')
@@ -34,7 +37,7 @@ def forever_loop(stream_id: str) -> None:
             logging.error(e)
             logging.info('Will continue to next loop after error')
 
-        sns_notifications.send_notification(sns_notifications.AnimalStatus.NOT_VISIBLE)
+        # sns_notifications.send_notification(sns_notifications.AnimalStatus.NOT_VISIBLE)
 
 
 if __name__ == '__main__':

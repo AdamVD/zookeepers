@@ -25,6 +25,7 @@
     "@aws-cdk/aws-ecr-assets": "^1.73.0",
     "@aws-cdk/aws-ecs": "^1.73.0",
     "@aws-cdk/aws-ecs-patterns": "^1.73.0",
+    "@aws-cdk/aws-iam": "^1.73.0",
     "@aws-cdk/aws-logs": "^1.73.0",
     "@aws-cdk/aws-sns": "^1.73.0",
     "@aws-cdk/aws-sns-subscriptions": "^1.73.0",
