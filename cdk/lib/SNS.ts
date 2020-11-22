@@ -12,6 +12,10 @@ export class SNS extends cdk.Construct {
       displayName: 'Polar bear notification topic'
     });
 
-    this.polarBearTopic.addSubscription(new subs.EmailSubscription('avd5772@rit.edu'));
+    let email = process.env.EMAIL
+    if (email == undefined) {
+      throw Error('You must specify an email address with the environment variable EMAIL')
+    }
+    this.polarBearTopic.addSubscription(new subs.EmailSubscription(email));
   }
 }
