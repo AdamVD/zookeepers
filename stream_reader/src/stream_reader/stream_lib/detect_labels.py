@@ -20,15 +20,27 @@ class Label(enum.Enum):
 
 def start_project_version() -> None:
     logging.info(f'Starting the desired Custom Labels project version')
-    response: dict = rekognition.start_project_version(
-        ProjectVersionArn=PROJECT_VERSION_ARN,
-        MinInferenceUnits=1
+    try:
+        response: dict = rekognition.start_project_version(
+            ProjectVersionArn=PROJECT_VERSION_ARN,
+            MinInferenceUnits=1
+        )
+        logging.info(f'Got response {response} from rekognition')
+        assert response['Status'] == 'STARTING' or response['Status'] == 'RUNNING'
+        globals()['started_project_version'] = True
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceInUseException':
+            logging.info('The custom labels model was already deployed')
+        else:  # unexpected error
+            raise e
+
+
+def stop_project_version() -> None:
+    logging.info(f'Stopping the Custom Labels project version')
+    response: dict = rekognition.stop_project_version(
+        ProjectVersionArn=PROJECT_VERSION_ARN
     )
     logging.info(f'Got response {response} from rekognition')
-
-    assert response['Status'] == 'STARTING' or response['Status'] == 'RUNNING'
-
-    globals()['started_project_version'] = True
 
 
 def detect_labels(jpeg_image: io.BytesIO) -> Tuple[Label, float]:
