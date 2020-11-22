@@ -2,8 +2,7 @@ import boto3
 import io
 import logging
 import enum
-from botocore import errorfactory
-
+from botocore.exceptions import ClientError
 from typing import Tuple
 
 rekognition = boto3.client('rekognition')
@@ -28,8 +27,12 @@ def detect_labels(jpeg_image: io.BytesIO) -> Tuple[Label, float]:
             MaxResults=1  # gives us the more confident of the two labels (or nothing if minimum not met)
             # MinConfidence automatically set by Rekognition based on testing results
         )
-    except errorfactory.ResourceNotReadyException as e:
-        logging.warning('CustomLabels model is not yet ready for use')
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceNotReadyException':
+            logging.warning('The custom labels model is not yet deployed')
+            return Label.NO_RESULT, 0.
+        else:  # unexpected error
+            raise e
 
     logging.debug(f'Got response from rekognition detection: {response}')
 
