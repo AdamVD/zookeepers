@@ -26,7 +26,11 @@ export class StreamReader extends cdk.Construct {
       statements: [
           new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
-            actions: ['rekognition:DetectCustomLabels'],
+            actions: [
+                'rekognition:DetectCustomLabels',
+                'rekognition:StartProjectVersion',
+                'rekognition:StopProjectVersion'
+            ],
             resources: ['arn:aws:rekognition:us-east-1:591083098024:project/zookeepers_polarbear/version/zookeepers_polarbear.2020-11-15T22.20.57/1605496857456']
           })
       ]
@@ -38,7 +42,7 @@ export class StreamReader extends cdk.Construct {
     });
 
     new ecs.ContainerDefinition(this, 'ContainerDef', {
-      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.0.1'),
+      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.1.0'),
       taskDefinition: taskDefinition,
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'stream-reader',

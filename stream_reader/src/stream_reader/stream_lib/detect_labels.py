@@ -9,6 +9,7 @@ rekognition = boto3.client('rekognition')
 logging.info('Created rekognition boto3 client')
 
 PROJECT_VERSION_ARN = 'arn:aws:rekognition:us-east-1:591083098024:project/zookeepers_polarbear/version/zookeepers_polarbear.2020-11-15T22.20.57/1605496857456'
+started_project_version = False
 
 
 class Label(enum.Enum):
@@ -17,7 +18,22 @@ class Label(enum.Enum):
     NO_RESULT = enum.auto()  # neither label met the requisite confidence level
 
 
+def start_project_version() -> None:
+    logging.info(f'Starting the desired Custom Labels project version')
+    response: dict = rekognition.start_project_version(
+        ProjectVersionArn=PROJECT_VERSION_ARN,
+        MinInferenceUnits=1
+    )
+    logging.info(f'Got response {response} from rekognition')
+
+    assert response['Status'] == 'STARTING' or response['Status'] == 'RUNNING'
+
+    globals()['started_project_version'] = True
+
+
 def detect_labels(jpeg_image: io.BytesIO) -> Tuple[Label, float]:
+    if not started_project_version:
+        start_project_version()
     try:
         response: dict = rekognition.detect_custom_labels(
             ProjectVersionArn=PROJECT_VERSION_ARN,
