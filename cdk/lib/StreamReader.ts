@@ -12,10 +12,6 @@ export class StreamReader extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string, region: string, sns: SNS) {
     super(scope, id);
 
-    const dockerImage = new DockerImageAsset(this, 'Image', {
-      directory: path.join(__dirname, '..', '..', 'stream_reader')
-    });
-
     const cluster = new ecs.Cluster(this, 'Cluster');
 
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'TaskDef');
@@ -42,7 +38,7 @@ export class StreamReader extends cdk.Construct {
     });
 
     new ecs.ContainerDefinition(this, 'ContainerDef', {
-      image: ecs.ContainerImage.fromDockerImageAsset(dockerImage),
+      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.0.1'),
       taskDefinition: taskDefinition,
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'stream-reader',
@@ -58,10 +54,6 @@ export class StreamReader extends cdk.Construct {
     new ecs.FargateService(this, 'Service', {
       cluster: cluster,
       taskDefinition: taskDefinition
-    });
-
-    new cdk.CfnOutput(this, 'ImageURI', {
-      value: dockerImage.imageUri
     });
 
     new cdk.CfnOutput(this, 'SNSTopicArn', {
