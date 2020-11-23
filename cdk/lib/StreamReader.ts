@@ -36,7 +36,7 @@ export class StreamReader extends cdk.Construct {
     })
 
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
-      removalPolicy: RemovalPolicy.RETAIN
+      removalPolicy: RemovalPolicy.DESTROY
     });
 
     new ecs.ContainerDefinition(this, 'ContainerDef', {
