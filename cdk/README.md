@@ -71,6 +71,27 @@ for an hour. While we have not observed this behavior yet, we anticipate that th
 once the expiration time is reached. Fargate should automatically start a new container instance and the system should
 be functional again in a few minutes. 
 
+## Shutting down and destroying the stack
+This part will require a bit of quick coordination. The Fargate task with our running container will need to be manually
+stopped from the AWS console. This sends a `SIGTERM` signal to the container, which notifies our code to shut down the
+Custom Labels service - otherwise Adam will lose all of his money at $4/hour. For some reason which we were not able to
+debug, this "graceful shutdown" behavior will not happen when you `destroy` the CDK app.
+
+#### Stopping the Fargate task
+1. Log into the AWS console for the account you used to deploy the stack
+2. Navigate to the ECS page
+3. Select the Zookeepers cluster
+4. From the cluster page, select the Tasks tab
+5. Highlight the single running task, and click "stop"
+6. Quickly move on to the next section
+
+#### Destroying the CDK app
+Just as you ran `cdk deploy` before, you should now run `cdk destroy` and confirm with `y` when prompted. CDK will call
+on CloudFormation to delete the stack, and in a few minutes the resources should be removed from your account.
+
+## Thanks
+You are done! Thanks for checking out our system, and we hope the process went smoothly for you. 
+
 ## Useful commands
 
  * `npm run build`   compile typescript to js
