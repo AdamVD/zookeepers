@@ -1,11 +1,26 @@
 import boto3
 import io
+import os
 import logging
 import enum
 from botocore.exceptions import ClientError
 from typing import Tuple
 
-rekognition = boto3.client('rekognition')
+# cross-account rekognition access
+sts = boto3.client('sts')
+assumed_role = sts.assume_role(
+    RoleArn=os.environ['REKOGNITION_ROLE_ARN'],
+    RoleSessionName='RekognitionAssumedSession'
+)
+logging.info(f'Assumed cross-account role for rekognition access')
+credentials = assumed_role['Credentials']
+
+rekognition = boto3.client(
+    'rekognition',
+    aws_access_key_id=credentials['AccessKeyId'],
+    aws_secret_access_key=credentials['SecretAccessKey'],
+    aws_session_token=credentials['SessionToken']
+)
 logging.info('Created rekognition boto3 client')
 
 PROJECT_VERSION_ARN = 'arn:aws:rekognition:us-east-1:591083098024:project/zookeepers_polarbear/version/zookeepers_polarbear.2020-11-15T22.20.57/1605496857456'

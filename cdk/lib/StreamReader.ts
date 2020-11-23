@@ -21,28 +21,26 @@ export class StreamReader extends cdk.Construct {
     const zookeeperImageBucket = new s3.Bucket(this, 'ImageBucket');
     zookeeperImageBucket.grantReadWrite(taskDefinition.taskRole);
 
+    const rekognitionRoleArn = 'arn:aws:iam::591083098024:role/Zoo-Rekog-Access-AdamPersonal';
+
     new iam.Policy(this, 'CustomLabelsDetectAccess', {
       roles: [taskDefinition.taskRole],
       statements: [
           new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
-            actions: [
-                'rekognition:DetectCustomLabels',
-                'rekognition:StartProjectVersion',
-                'rekognition:StopProjectVersion'
-            ],
-            resources: ['arn:aws:rekognition:us-east-1:591083098024:project/zookeepers_polarbear/version/zookeepers_polarbear.2020-11-15T22.20.57/1605496857456']
+            actions: ['sts:AssumeRole'],
+            resources: [rekognitionRoleArn]
           })
       ]
 
     })
 
     const logGroup = new logs.LogGroup(this, 'LogGroup', {
-      removalPolicy: RemovalPolicy.DESTROY
+      removalPolicy: RemovalPolicy.RETAIN
     });
 
     new ecs.ContainerDefinition(this, 'ContainerDef', {
-      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.2.1'),
+      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.3.1'),
       taskDefinition: taskDefinition,
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'stream-reader',
@@ -51,7 +49,8 @@ export class StreamReader extends cdk.Construct {
       environment: {
         REGION: region,
         TOPIC_ARN: sns.polarBearTopic.topicArn,
-        IMAGE_BUCKET: zookeeperImageBucket.bucketArn
+        IMAGE_BUCKET: zookeeperImageBucket.bucketArn,
+        REKOGNITION_ROLE_ARN: rekognitionRoleArn
       }
     });
 
