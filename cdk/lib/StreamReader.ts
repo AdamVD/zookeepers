@@ -40,7 +40,7 @@ export class StreamReader extends cdk.Construct {
     });
 
     new ecs.ContainerDefinition(this, 'ContainerDef', {
-      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.3.1'),
+      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.3.2'),
       taskDefinition: taskDefinition,
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'stream-reader',
