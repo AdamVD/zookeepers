@@ -1,16 +1,18 @@
 # Welcome to the Zookeeper's CDK TypeScript project!
+**Due to IAM limitations, the system must be launched from a personal non-Educate account.**
 
 In this README we will go through the steps to get our system up and running in your AWS account. Outside of installing
 the `cdk` tool and any pre-requisites, this process will be almost entirely automated. The upcoming sections should be
 followed in order.
 
-While the `cdk` is able to run cross-platform, some specifics commands and instructions in this guide assume you are
+While the `cdk` is able to run cross-platform, some specific commands and instructions in this guide assume you are
 using a Linux-based system.
 
 ## Installing the CDK
 
 Please follow the [Getting Started](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) guide from AWS
-for instructions on installing the `cdk` CLI.
+for instructions on installing the `cdk` CLI. Specifically, follow the two sections titled *Prerequisites* and 
+*Install the AWS CDK*.
 
 Once you have verified your `cdk` installation with `cdk --version`, you are ready to move onto the next major section.
 
@@ -19,7 +21,7 @@ To ensure compatibility, we recommend using the latest LTS version 12.X. However
 able to use any version >10.3.0 and not in the range 13.0.0 through 13.6.0.
 
 #### A note on AWS credentials
-As is written in the guide, the `cdk` uses the same credential system as the `aws` CLI. If you have multiple profiles,
+As is written in the AWS guide, the `cdk` uses the same credential system as the `aws` CLI. If you have multiple profiles,
 you can select one for the duration of your shell session with `export AWS_PROFILE=<profile_name>`. Also, ensure
 you are using `us-east-1` to deploy this project.
 
@@ -48,13 +50,15 @@ the stack. It should take around 5 minutes for the deployment to complete.
 After the SNS resource is created, you should receive an email asking you to confirm your subscription. You can accept
 this even while the deployment is still in progress.
 
-Once our container is up and running in Fargate, it will make a request to the Rekognition CustomLabels service in Adam's
+Once our container is up and running in Fargate, it will make a request to the Rekognition Custom Labels service in Adam's
 account to prepare the service for inference. It will take Rekognition around **10 minutes** to make the CustomLabel
 service ready for use.
 
 Once the CustomLabels project is ready for use, you should start to receive emails from the SNS topic. The system is 
 built to send notifications whenever the detection state changes. Feel free to leave the system running over a period of
-a few hours - it might take that long for something interesting to happen in the live feed.
+a few hours - it might take that long for something interesting to happen in the live feed. If you do not get any emails
+after around 15 minutes, there is likely something wrong with the system. Please check the logs and communicate errors
+with Adam at avd5772@rit.edu.
 
 #### Monitoring logs
 From the console, you can view the logs from our running container in CloudWatch Logs. Just look for a log group with
@@ -74,7 +78,7 @@ be functional again in a few minutes.
 ## Shutting down and destroying the stack
 This part will require a bit of quick coordination. The Fargate task with our running container will need to be manually
 stopped from the AWS console. This sends a `SIGTERM` signal to the container, which notifies our code to shut down the
-Custom Labels service - otherwise Adam will lose all of his money at $4/hour. For some reason which we were not able to
+Custom Labels service - otherwise Adam will lose all of his (Educate) money at $4/hour. For some reason which we were not able to
 debug, this "graceful shutdown" behavior will not happen when you `destroy` the CDK app.
 
 #### Stopping the Fargate task
@@ -86,7 +90,7 @@ debug, this "graceful shutdown" behavior will not happen when you `destroy` the 
 6. Quickly move on to the next section
 
 #### Destroying the CDK app
-Just as you ran `cdk deploy` before, you should now run `cdk destroy` and confirm with `y` when prompted. CDK will call
+Just as you ran `EMAIL=<your_email> cdk deploy` before, you should now run `EMAIL=<your_email> cdk destroy` and confirm with `y` when prompted. CDK will call
 on CloudFormation to delete the stack, and in a few minutes the resources should be removed from your account.
 
 ## Thanks
