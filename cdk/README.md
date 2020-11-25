@@ -1,5 +1,5 @@
 # Welcome to the Zookeeper's CDK TypeScript project!
-**Due to IAM limitations, the system must be launched from a personal non-Educate account.**
+**Due to IAM limitations, the system must be launched from a personal non-Educate account. Specifically, it must be launched from the account ID 278656840245, unless you communicate otherwise with Adam (avd5772@rit.edu).**
 
 In this README we will go through the steps to get our system up and running in your AWS account. Outside of installing
 the `cdk` tool and any pre-requisites, this process will be almost entirely automated. The upcoming sections should be
