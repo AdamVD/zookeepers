@@ -12,10 +12,6 @@ export class StreamReader extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string, region: string, sns: SNS) {
     super(scope, id);
 
-    const dockerImage = new DockerImageAsset(this, 'Image', {
-      directory: path.join(__dirname, '..', '..', 'stream_reader')
-    });
-
     const cluster = new ecs.Cluster(this, 'Cluster');
 
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'TaskDef');
@@ -25,13 +21,15 @@ export class StreamReader extends cdk.Construct {
     const zookeeperImageBucket = new s3.Bucket(this, 'ImageBucket');
     zookeeperImageBucket.grantReadWrite(taskDefinition.taskRole);
 
+    const rekognitionRoleArn = 'arn:aws:iam::591083098024:role/Zoo-Rekog-Access-AdamPersonal';
+
     new iam.Policy(this, 'CustomLabelsDetectAccess', {
       roles: [taskDefinition.taskRole],
       statements: [
           new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
-            actions: ['rekognition:DetectCustomLabels'],
-            resources: ['arn:aws:rekognition:us-east-1:591083098024:project/zookeepers_polarbear/version/zookeepers_polarbear.2020-11-15T22.20.57/1605496857456']
+            actions: ['sts:AssumeRole'],
+            resources: [rekognitionRoleArn]
           })
       ]
 
@@ -42,7 +40,7 @@ export class StreamReader extends cdk.Construct {
     });
 
     new ecs.ContainerDefinition(this, 'ContainerDef', {
-      image: ecs.ContainerImage.fromDockerImageAsset(dockerImage),
+      image: ecs.ContainerImage.fromRegistry('avd5772/zookeepers-stream-reader:1.3.2'),
       taskDefinition: taskDefinition,
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'stream-reader',
@@ -51,17 +49,14 @@ export class StreamReader extends cdk.Construct {
       environment: {
         REGION: region,
         TOPIC_ARN: sns.polarBearTopic.topicArn,
-        IMAGE_BUCKET: zookeeperImageBucket.bucketArn
+        IMAGE_BUCKET: zookeeperImageBucket.bucketArn,
+        REKOGNITION_ROLE_ARN: rekognitionRoleArn
       }
     });
 
     new ecs.FargateService(this, 'Service', {
       cluster: cluster,
       taskDefinition: taskDefinition
-    });
-
-    new cdk.CfnOutput(this, 'ImageURI', {
-      value: dockerImage.imageUri
     });
 
     new cdk.CfnOutput(this, 'SNSTopicArn', {

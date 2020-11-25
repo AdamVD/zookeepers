@@ -12,6 +12,7 @@ from stream_lib import image_from_url
 # from src.stream_reader.stream_lib import unlabeled_uploader
 from stream_lib import detect_labels
 from stream_lib import sns_notifications
+from stream_lib import graceful_killer
 
 URL_REPLACE_STR = 'STREAM_ID'
 SAN_DIEGO_PREVIEW_IMAGE_URL_TEMPLATE = f'https://{URL_REPLACE_STR}.preview.api.camzonecdn.com/previewimage'
@@ -23,8 +24,9 @@ class STREAM_IDS:
 
 
 def forever_loop(stream_id: str) -> None:
+    killer = graceful_killer.GracefulKiller()
     last_label = detect_labels.Label.NO_RESULT
-    while True:
+    while not killer.kill_now:
         # the preview image updates at something like a 7-8 second interval
         logging.debug('Loop begin')
         time.sleep(LOOP_SLEEP_S)
@@ -44,6 +46,9 @@ def forever_loop(stream_id: str) -> None:
         except ValueError as e:
             logging.error(e)
             logging.info('Will continue to next loop after error')
+
+    # clean up
+    detect_labels.stop_project_version()
 
 
 if __name__ == '__main__':
